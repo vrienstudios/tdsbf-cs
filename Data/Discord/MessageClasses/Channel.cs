@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 
@@ -48,7 +49,7 @@ namespace TDSBF.Data.Discord.MessageClasses
             if (!response.Result.IsSuccessStatusCode)
                 throw new Exception();
             System.Threading.Tasks.Task<string> str = response.Result.Content.ReadAsStringAsync();
-            return new List<MessageClasses.Message>(JsonConvert.DeserializeObject<List<MessageClasses.Message>>(str.Result)).ToArray();
+            return new List<MessageClasses.Message>(JsonConvert.DeserializeObject<List<MessageClasses.Message>>(str.Result)).ToArray().Reverse().ToArray();
         }
 
         /// <summary>
@@ -62,7 +63,7 @@ namespace TDSBF.Data.Discord.MessageClasses
             if (!response.Result.IsSuccessStatusCode)
                 throw new Exception();
             System.Threading.Tasks.Task<string> str = response.Result.Content.ReadAsStringAsync();
-            return new List<MessageClasses.Message>(JsonConvert.DeserializeObject<List<MessageClasses.Message>>(str.Result));
+            return new List<MessageClasses.Message>(JsonConvert.DeserializeObject<List<MessageClasses.Message>>(str.Result)).ToArray().Reverse().ToList();
         }
 
         /// <summary>
