@@ -1,6 +1,10 @@
-﻿using System;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
+using WebSocketSharp;
 
 namespace TDSBF.Data.Discord.MessageClasses
 {
@@ -40,5 +44,27 @@ namespace TDSBF.Data.Discord.MessageClasses
         public object banner { get; set; }
         public string id { get; set; }
         public string owner_id { get; set; }
+
+        public Guild Join(string inviteCode)
+        {
+            Task<HttpResponseMessage> response = Storage.client.PostAsync(String.Format("https://discordapp.com/api/v6/invites/{0}", inviteCode), null);
+
+            if (response.Result.IsSuccessStatusCode)
+                return ParseGuild(response.Result.Content.ReadAsStringAsync().Result.ToString());
+            else
+                return null;
+        }
+
+        private Guild ParseGuild(string json) => JsonConvert.DeserializeObject<Guild>(json);
+
+        public Boolean Leave(Guild guild) // TODO
+        {
+            Task<HttpResponseMessage> response = Storage.client.DeleteAsync(String.Format("https://discordapp.com/api/v6/users/@me/guilds/{0}", guild.id));
+            if (response.Result.IsSuccessStatusCode)
+                return true;
+            else
+                return false;
+        }
+
     }
 }
