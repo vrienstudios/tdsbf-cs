@@ -1,15 +1,13 @@
 
 [![Discord Server](https://img.shields.io/discord/737835739529740308.svg?label=discord)](https://discord.gg/Jzxfy2U) 
 # tdsbf-cs
-Discord self-bot framework for C# applications.
+Discord bot framework with its mind focused on ease of use and maximum customizability.
 
+# Installation
+As of right now, you can only install TDSBF or Totality from the source. You have to download the whole project and build it.
 
 # Documentation
 None right now really. It's not yet finished.
 
-# Versions
-JS [private]
-
-**CS** [current_released]
-
-C++ [dev]
+# Q&A
+You can @ us and get an extremely quick response during the day when you join our Discord.
