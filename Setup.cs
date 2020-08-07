@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Runtime.CompilerServices;
@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using TDSBF.Data.Discord;
 using TDSBF.Data.Discord.Web;
 using System.Threading;
+using TDSBF.Data.Discord.Authentication;
 //#define true TRUE
 namespace TDSBF
 {
@@ -18,6 +19,8 @@ namespace TDSBF
     {
         public String GetToken { get { return Data.Storage.Token; } }
         public User GetCurrentUser { get { return Storage.ReadyEvent.d.user; } }
+        private Boolean SetReadyState { get; set; }
+        public Boolean GetReadyState { get { return SetReadyState; } }
 
         private Boolean WebSocketConnect(int timeout) //unsigned
         {
@@ -35,6 +38,19 @@ namespace TDSBF
             return attempts > timeout ? false : true;
         }
 
+        public void Setup(String token, TokenType tokenType) //std::string
+        {
+            Data.Storage.Token = token;
+            Thread wsThread = new Thread(() => WsInit()); //std::function wsThr;
+            GToken.tokenType = tokenType;
+            wsThread.Name = "wsThread_0";
+
+            wsThread.Start();
+            Thread.Sleep(100);
+            while (!Storage.ws.IsConnected)
+                Thread.Sleep(100);
+        }
+
         public void Setup(String token) //std::string
         {
             Data.Storage.Token = token;
@@ -42,7 +58,7 @@ namespace TDSBF
             wsThread.Name = "wsThread_0";
 
             wsThread.Start();
-            Thread.Sleep(90);
+            Thread.Sleep(100);
             while (!Storage.ws.IsConnected)
                 Thread.Sleep(100);
         }
@@ -50,17 +66,16 @@ namespace TDSBF
         private void WsInit() //&Websocket
         {
             Data.Storage.ws = new WebSocket("wss://gateway.discord.gg/?v=6&encoding=json");
+            Data.Storage.op2 = Data.Storage.op2.ReplaceMultiple(new string[] { "&1", Data.Storage.Token, "&2", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString() });
+            Data.Storage.client = new System.Net.Http.HttpClient();
+            Data.Storage.client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"{GToken.GetTokenType}{Data.Storage.Token}"); // Discord authenticats via token
+
+            Data.Storage.TDSBFMessage = "2 Connecting";
+            Storage.ws.Connect();
+            Data.Storage.TDSBFMessage = "3 Connected";
             Data.Storage.ws.OnOpen += Ws_OnOpen;
             Data.Storage.ws.OnMessage += Ws_OnMessage;
             Data.Storage.ws.OnClose += Ws_OnClose;
-            Data.Storage.op2 = Data.Storage.op2.ReplaceMultiple(new string[] { "&1", Data.Storage.Token, "&2", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString() });
-            Data.Storage.client = new System.Net.Http.HttpClient();
-            Data.Storage.client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(Data.Storage.Token); // Discord authenticats via token
-
-            Data.Storage.TDSBFMessage = "2 Connecting";
-            if (!WebSocketConnect(5) && Storage.ThrowExcept)
-                throw new Exception("1 failed to connect");
-            Data.Storage.TDSBFMessage = "3 Connected";
         }
 
         private void Ws_OnClose(object sender, CloseEventArgs e)
@@ -109,6 +124,7 @@ namespace TDSBF
                             Storage.TDSBFMessage = "Ready event recieved";
                             Storage.ReadyEventRecieved = true; // I wish true equaled TRUE .__.
                             Storage.ReadyEvent = RE;
+                            SetReadyState = true;
                             RE = null;
                             break;
                         case "MESSAGE_CREATE":
@@ -126,7 +142,7 @@ namespace TDSBF
 
         private void Ws_OnOpen(object sender, EventArgs e)
         {
-            //TODO: Add function here.
+            Storage.ws.Send(Storage.op1);
         }
 
         ~Totality()
