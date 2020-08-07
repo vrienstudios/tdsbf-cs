@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -16,7 +16,7 @@ namespace TDSBF.Data
         public static string Token = string.Empty;
         private static string _TDSBFMessage { get; set; }
         public static string TDSBFMessage { get { return _TDSBFMessage; } set { _TDSBFMessage = value; OnSystemAlert(new SystemAlert(value)); } }
-        public static string op2 = @"{""op"": 2, ""d"": { ""token"": ""&1"", ""properties"": { ""$os"": ""TDSBF"", ""$browser"": ""etzyy - wrapper"", ""$device"": ""etzyy - wrapper"" }, ""compress"": false, ""large_threshold"": 250, ""status"": ""online"", ""since"": &2, ""afk"": false} }";
+        public static string op2 = @"{""op"": 2, ""d"": { ""token"": ""&1"", ""properties"": { ""$os"": ""linux"", ""$browser"": ""etzyy - wrapper"", ""$device"": ""tdsbf"" }, ""compress"": false, ""large_threshold"": 250, ""status"": ""online"", ""since"": &2, ""afk"": false} }";
         public static WebSocket ws;
         public static ReadyEvent ReadyEvent { get; set; }
         public static HttpClient client = new HttpClient();
