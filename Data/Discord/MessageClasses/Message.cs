@@ -1,6 +1,9 @@
-﻿using System;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TDSBF.Data.Discord.MessageClasses
 {
@@ -48,6 +51,35 @@ namespace TDSBF.Data.Discord.MessageClasses
             public int s { get; set; }
             public int op { get; set; }
             public Message d;
+        }
+
+        private class aMessage
+        {
+            public String content { get; set; }
+            //public String none { get; set; } message ID
+            public Boolean? tts { get; set; }
+
+            public aMessage(string content, bool? tts)
+            {
+                this.content = content;
+                this.tts = tts;
+            }
+
+        }
+
+        /// <summary>
+        /// Eddit message
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public async Task<Boolean> EditMessage(String content, Boolean? tts)
+        {
+            StringContent data = new StringContent(JsonConvert.SerializeObject(new aMessage(content, tts)), UnicodeEncoding.UTF8, "application/json");
+            HttpRequestMessage asko = new HttpRequestMessage { Method = new HttpMethod("PATCH"), Content = data, RequestUri = new Uri(string.Format("https://discordapp.com/api/v6/channels/{0}/messages/{1}", this.channel_id, this.id)) };
+            HttpResponseMessage response = await Storage.client.SendAsync(asko);
+            if (!response.IsSuccessStatusCode)
+                Console.WriteLine(response.StatusCode + " " + response.ReasonPhrase + " " + string.Format("https://discordapp.com/api/v6/channels/{0}/messages/{1}", this.channel_id, this.id) + " " + Storage.client.DefaultRequestHeaders.Authorization.ToString());
+            return true;
         }
     }
 }
